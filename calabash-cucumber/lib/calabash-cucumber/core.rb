@@ -1033,38 +1033,24 @@ arguments => '#{arguments}'
         query(q).map { |e| e['html'] }
       end
 
-      # sets the text value of the views matched by +uiquery+ to +txt+
+      # Sets the text value of the views matched by +uiquery+ to +txt+.
       #
-      # @deprecated since 0.9.145
+      # You should always try to enter text "like the user would" using the
+      # `keyboard_enter_text` method.  There are cases, however, when this does
+      # not work or is very slow.
       #
-      # we have stopped testing this method.  you have been warned.
+      # Please note that if you use this method, the UITextFieldDelegate and
+      # UITextViewDelegate methods ***will not be called*** if you use this
+      # method of text entry.
       #
-      # * to enter text using the native keyboard use 'keyboard_enter_text'
-      # * to delete text use 'keyboard_enter_text('Delete')"
-      # * to clear a text field or text view:
-      #   - RECOMMENDED: use queries and touches to replicate what the user would do
-      #     - for text fields, implement a clear text button and touch it
-      #     - for text views, use touches to reveal text editing popup
-      #       see https://github.com/calabash/calabash-ios/issues/151
-      #   - use 'clear_text'
-      #  https://github.com/calabash/calabash-ios/wiki/03.5-Calabash-iOS-Ruby-API
+      # @param [String] uiquery used to find the text input views
+      # @param [String] txt the new text
       #
-      # raises an error if the +uiquery+ finds no matching queries or finds
+      # @raise[RuntimeError] If the +uiquery+ finds no matching queries or finds
       # a view that does not respond to the objc selector 'setText'
+      #
+      # @return [Array<String>] The text fields that were modified.
       def set_text(uiquery, txt)
-        msgs = ["'set_text' is deprecated and its behavior is now unpredictable",
-                "* to enter text using the native keyboard use 'keyboard_enter_text'",
-                "* to delete text use 'keyboard_enter_text('Delete')",
-                '* to clear a text field or text view:',
-                '  - RECOMMENDED: use queries and touches to replicate what the user would do',
-                '    * for text fields, implement a clear text button and touch it',
-                '    * for text views, use touches to reveal text editing popup',
-                '    see https://github.com/calabash/calabash-ios/issues/151',
-                "  - use 'clear_text'",
-                'https://github.com/calabash/calabash-ios/wiki/03.5-Calabash-iOS-Ruby-API']
-        msg = msgs.join("\n")
-        RunLoop.deprecated("0.9.145", msg)
-
         text_fields_modified = map(uiquery, :setText, txt)
 
         msg = "query '#{uiquery}' returned no matching views that respond to 'setText'"
@@ -1072,37 +1058,24 @@ arguments => '#{arguments}'
         text_fields_modified
       end
 
-      # sets the text value of the views matched by +uiquery+ to <tt>''</tt>
+      # Sets the text value of the views matched by +uiquery+ to <tt>''</tt>
       # (the empty string)
       #
-      # using this sparingly and with caution
+      # Using this sparingly and with caution.  We recommend using queries and
+      # touches to replicate what the _user would do_.
       #
+      # @param [String] uiquery used to find the text input views
       #
-      # it is recommended that you instead do some combination of the following
+      # @raise[RuntimeError] If the +uiquery+ finds no matching queries or finds
+      # a view that does not respond to the objc selector 'setText'
       #
-      # * use queries and touches to replicate with the user would
-      #   - for text fields, implement a clear text button and touch it
-      #   - for text views, use touches to reveal text editing popup
-      #   see https://github.com/calabash/calabash-ios/issues/151
-      #
-      #  https://github.com/calabash/calabash-ios/wiki/03.5-Calabash-iOS-Ruby-API
-      #
-      # raises an error if the +uiquery+ finds no matching queries or finds
-      # a _single_ view that does not respond to the objc selector 'setText'
-      #
-      # IMPORTANT
-      # calling:
-      #
-      #     > clear_text("view")
-      #
-      # will clear the text on _all_ visible views that respond to 'setText'
+      # @return [Array<String>] The text fields that were modified.
       def clear_text(uiquery)
         views_modified = map(uiquery, :setText, '')
         msg = "query '#{uiquery}' returned no matching views that respond to 'setText'"
         assert_map_results(views_modified, msg)
         views_modified
       end
-
 
       # Sets user preference (NSUserDefaults) value of key `key` to `val`.
       # @example
